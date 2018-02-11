@@ -3,23 +3,19 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+/**
+ *
+ */
+public class LSHSearch extends Search {
 
-public class BruteForceSearch extends Search{
+    public LSHSearch(TwitterReader reader) { super(reader); }
 
-    public BruteForceSearch(TwitterReader reader) {
-        super(reader);
-    }
-
-    /**
-     * Get pairs of objects with similarity above threshold.
-     * @param threshold the similarity threshold
-     * @return the pairs
-     */
     public Set<SimilarPair> getSimilarPairsAboveThreshold(double threshold) {
 
         Map<Integer, Set<Integer>> docToShingle = super.getShingledTweets();
 
         Set<SimilarPair> cands = new HashSet<SimilarPair>();
+        /*
         for (Integer obj1 : docToShingle.keySet()){
             if (obj1 % 10000 == 0){
                 System.out.println("at " + obj1);
@@ -33,6 +29,7 @@ public class BruteForceSearch extends Search{
                 }
             }
         }
+        */
         return cands;
     }
 }
