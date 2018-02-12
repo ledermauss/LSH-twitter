@@ -23,7 +23,8 @@ public abstract class Search {
         }
         return docToShingle;
     }
-	
+
+
 	/**
 	 * Jaccard similarity between two sets.
 	 * @param set1
