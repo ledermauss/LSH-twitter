@@ -15,6 +15,7 @@ public class BruteForceSearch extends Search{
      * @param threshold the similarity threshold
      * @return the pairs
      */
+    @Override
     public Set<SimilarPair> getSimilarPairsAboveThreshold(double threshold) {
 
         Map<Integer, Set<Integer>> docToShingle = super.getShingledTweets();

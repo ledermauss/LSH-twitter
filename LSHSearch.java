@@ -33,6 +33,7 @@ public class LSHSearch extends Search {
         }
     }
 
+
     private Function<Integer, Integer> initHash(int a, int b, int p){
         // lambda: shingle is the argument (int) the generated function expects
         // this.nShingles: max length of the hashValue (max shingles)
@@ -40,22 +41,17 @@ public class LSHSearch extends Search {
                 (UniversalHash.hash32(shingle, this.nShingles, a, b, p) & 0x7FFFFFFF);
     }
 
+
     // returns the hash of a single, given hashing function index h
-    private int hashShingle(int shingle, int h){
-        return sigHashFunctions[h].apply(shingle);
-    }
+    private int hashShingle(int shingle, int h){ return sigHashFunctions[h].apply(shingle); }
 
 
-
-    public Set<SimilarPair> getSimilarPairsAboveThreshold(double threshold) {
-        //Set<SimilarPair> cands = new HashSet<SimilarPair>();
-        Map<Integer, Set<Integer>> docToShingle = super.getShingledTweets();
-        int docs = docToShingle.keySet().size();
-
-        // create the signature matrix
+    private int[][] createSignatureMatrix(int docs, Map<Integer, Set<Integer>> docToShingle){
         // 1. initialize sizes
         int[][] sig = new int[this.sigRows][docs];
-        Arrays.fill(sig, this.nShingles + 1);                   // fill with infinite = fill with maximum hashing value
+        for (int[] row: sig)
+            Arrays.fill(row, this.nShingles + 1);              // fill with infinite = fill with maximum hashing value
+
         // 2. go through each shingle and doc,
         for (Integer doc: docToShingle.keySet()){                    // iterate columns (docs)
             for (Integer shingleRow: docToShingle.get(doc)){         // iterate rows (shingles, range 0 - maxShingles)
@@ -66,9 +62,20 @@ public class LSHSearch extends Search {
                 }
             }
         }
+        return sig;
+    }
 
+    @Override
+    public Set<SimilarPair> getSimilarPairsAboveThreshold(double threshold){
+        //Set<SimilarPair> cands = new HashSet<SimilarPair>();
+        Map<Integer, Set<Integer>> docToShingle = super.getShingledTweets();
+        int docs = docToShingle.keySet().size();
 
-        // divide by rows and bands, etc
+        int[][] sig = createSignatureMatrix(docs, docToShingle);
+        for (int i = 0; i < 10; i++)
+            System.out.println(Arrays.toString(sig[i]));
+
+        // finding the candidates with lsh
 
 
         /*

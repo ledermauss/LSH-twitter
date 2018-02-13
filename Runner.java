@@ -14,6 +14,7 @@ public class Runner {
 
 		String inputPath = "";
 		String outputPath = "";
+		String algorithm = "lsh"; // expect "brute" for brute force
 		int maxFiles = -1;
 		int shingleLength = -1;
 		int nShingles = -1;
@@ -34,16 +35,22 @@ public class Runner {
 				threshold = Float.parseFloat(args[i+1]);
 			}else if(arg.equals("-outputPath")){
 				outputPath = args[i + 1];
+			}else if(arg.equals("-algorithm")){
+				algorithm = args[i + 1];
             }
-
 			i += 2;
 		}
 
 		Shingler shingler = new Shingler(shingleLength, nShingles);
    		TwitterReader reader = new TwitterReader(maxFiles, shingler, inputPath);
-		BruteForceSearch searcher = new BruteForceSearch(reader);
+		Search searcher;
+		if (algorithm.equals("brute")){
+			searcher = new BruteForceSearch(reader);
+		} else{
+			searcher = new LSHSearch(reader, 10, 20);
+		}
 		Set<SimilarPair> similarItems = searcher.getSimilarPairsAboveThreshold(threshold);
-		printPairs(similarItems, outputPath);
+		// printPairs(similarItems, outputPath);
 
 	}
 

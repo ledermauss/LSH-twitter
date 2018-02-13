@@ -24,6 +24,8 @@ public abstract class Search {
         return docToShingle;
     }
 
+    public abstract Set<SimilarPair> getSimilarPairsAboveThreshold(double threshold);
+
 
 	/**
 	 * Jaccard similarity between two sets.
