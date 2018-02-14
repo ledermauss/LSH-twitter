@@ -50,8 +50,7 @@ public class Runner {
 			searcher = new LSHSearch(reader, 10, 20);
 		}
 		Set<SimilarPair> similarItems = searcher.getSimilarPairsAboveThreshold(threshold);
-		// printPairs(similarItems, outputPath);
-
+		printPairs(similarItems, outputPath);
 	}
 
 
