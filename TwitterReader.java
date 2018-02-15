@@ -41,7 +41,11 @@ public class TwitterReader {
 	     			String line = br.readLine();
 				String[] cols = line.split("\t", -1);
 				this.curDoc++;
-				return this.shingler.shingle(cols[2]);
+				if (cols.length == 3) {
+                    return this.shingler.shingle(cols[2]);
+                } else {
+                    return this.shingler.shingle("\n"); // to avoid breaking if last line is blank
+                }
 			} catch (IOException e) {
 				e.printStackTrace(); 			
 			}
