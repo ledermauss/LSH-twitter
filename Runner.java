@@ -48,7 +48,7 @@ public class Runner {
 			searcher = new BruteForceSearch(reader);
 		} else{
             System.out.println("Performing LSH search");
-			searcher = new LSHSearch(reader, 20, 5);
+			searcher = new LSHSearch(reader, 10, 4);
 		}
 		Set<SimilarPair> similarItems = searcher.getSimilarPairsAboveThreshold(threshold);
 		printPairs(similarItems, outputPath);
