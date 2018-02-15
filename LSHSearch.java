@@ -9,6 +9,7 @@ public class LSHSearch extends Search {
     private int lshBands;
     private int sigRows;            // rows/hash functions of the signature matrix
     private int nShingles;          // max number of shingles/signature hashing values
+    private int nDocs;
     private int murmurSeed;         // murmur hash seed for the band buckets
     private Function <Integer, Integer>[] sigHashFunctions;
 
@@ -18,7 +19,8 @@ public class LSHSearch extends Search {
         this.lshBands = bands;
         this.sigRows = rows * bands;
         this.murmurSeed = (new Random()).nextInt();
-        this.nShingles = reader.shingler.nShingles;
+        this.nShingles = super.reader.shingler.nShingles;
+        this.nDocs = super.reader.maxDocs;  // updated later if it is actually smaller
         this.sigHashFunctions = new Function[this.sigRows];
         Random rand = new Random();
         int prime = Primes.findLeastPrimeNumber(this.nShingles + 1);
@@ -48,14 +50,15 @@ public class LSHSearch extends Search {
     @Override
     public Set<SimilarPair> getSimilarPairsAboveThreshold(double threshold){
         Set<SimilarPair> sims = new HashSet<SimilarPair>();
-        Map<Integer, Set<Integer>> docToShingle = super.getShingledTweets();
-        int docs = docToShingle.keySet().size();
+        boolean[][] shingledTweets= getShingledTweetsMatrix();
+        System.out.println("Tweets have been read");
 
-        int[][] sig = createSignatureMatrix(docs, docToShingle);
+        int[][] sig = createSignatureMatrix(shingledTweets);
+        System.out.println("Signature matrix has been created");
 
         // finding the candidates with lsh
         for (int band = 0; band < this.lshBands; band++) {       // iterate bands
-            Map<Integer, HashSet<Integer>> bandCandidatePairs = getBandCandidatePairs(band, sig, docs);
+            Map<Integer, HashSet<Integer>> bandCandidatePairs = getBandCandidatePairs(band, sig);
 
             // extract pairs with similarity above the threshold from the band, store them
             for (Set<Integer> set : bandCandidatePairs.values()) {
@@ -65,23 +68,39 @@ public class LSHSearch extends Search {
                 }
             }
         }
+        System.out.println("Found similar pairs");
         return sims;
     }
 
+    public boolean[][] getShingledTweetsMatrix(){
+        //booleans should use less memory
+        boolean[][] docToShingle = new boolean[this.nShingles][this.nDocs];
+        int id = 0;
+        while (reader.hasNext()){
+            for (int shingle: reader.next()){
+                docToShingle[shingle][id] = true;
+            }
+            id++;
+        }
+        // modify nDocs if finally the maximum is not met
+        this.nDocs = id + 1;
+        return docToShingle;
+    }
 
-    private int[][] createSignatureMatrix(int docs, Map<Integer, Set<Integer>> docToShingle){
+
+    private int[][] createSignatureMatrix(boolean[][] docToShingle){
         // 1. initialize sizes
-        int[][] sig = new int[this.sigRows][docs];
+        int[][] sig = new int[this.sigRows][this.nDocs];
         for (int[] row: sig)
             Arrays.fill(row, this.nShingles + 1);              // fill with infinite = fill with maximum hashing value
 
         // 2. go through each shingle and doc,
-        for (Integer doc: docToShingle.keySet()){                    // iterate columns (docs)
-            for (Integer shingleRow: docToShingle.get(doc)){         // iterate rows (shingles, range 0 - maxShingles)
-                for (int i = 0; i < this.sigRows; i++){              // apply each hash function
+        for (int doc = 0; doc < this.nDocs; doc++){                             // iterate columns (docs)
+            for (int shingle = 0; shingle < this.nShingles; shingle++){         // iterate rows (shingles)
+                for (int h = 0; h < this.sigRows; h++){              // apply each hash function (rows in sig matrix)
                     // 3. hash row number when a 1 is found, store min value
-                    sig[i][doc] = (hashShingle(shingleRow, i) < sig[i][doc]) ?
-                            hashShingle(shingleRow, i) : sig[i][doc];
+                    if (docToShingle[shingle][doc]) sig[h][doc] = (hashShingle(shingle, h) < sig[h][doc]) ?
+                                hashShingle(shingle, h) : sig[h][doc];
                 }
             }
         }
@@ -89,11 +108,11 @@ public class LSHSearch extends Search {
     }
 
 
-    public Map<Integer, HashSet<Integer>> getBandCandidatePairs(int band, int[][] sig, int docs){
+    public Map<Integer, HashSet<Integer>> getBandCandidatePairs(int band, int[][] sig){
         int b = band * this.lshRows;
         Map<Integer, HashSet<Integer>> bandCandidatePairs = new HashMap<Integer, HashSet<Integer>>();
         // find the candidate pairs of a band
-        for (int doc = 0; doc < docs; doc++) {                   // iterate signatures (columns) and hash them
+        for (int doc = 0; doc < this.nDocs; doc++) {                   // iterate signatures (columns) and hash them
             String docSignature = "";
 
             for (int row = b; row < b + this.lshRows; row++) {  // create signature (concat values)
