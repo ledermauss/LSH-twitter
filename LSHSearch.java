@@ -56,15 +56,9 @@ public class LSHSearch extends Search {
 
         // finding the candidates with lsh
         for (int band = 0; band < this.lshBands; band++) {       // iterate bands
-            Map<Integer, HashSet<Integer>> bandCandidatePairs = getBandCandidatePairs(band, sig);
-
-            // extract pairs with similarity above the threshold from the band, store them
-            for (Set<Integer> set : bandCandidatePairs.values()) {
-                if (set.size() > 1) {
-                    Set<SimilarPair> setSims = getSimilarPairsAboveThresholdFromSet(threshold, set, sig);
-                    sims.addAll(setSims);
-                }
-            }
+            long[] bandHashes = getBandSignatureHashes(band, sig);
+            Set<SimilarPair> bandSims = getSimilarPairsAboveThresholdFromBand(threshold, bandHashes, sig);
+            sims.addAll(bandSims);
         }
         System.out.println("Found similar pairs");
         return sims;
@@ -92,40 +86,38 @@ public class LSHSearch extends Search {
     }
 
 
-    public Map<Integer, HashSet<Integer>> getBandCandidatePairs(int band, short[][] sig){
+    // idea:  do not hash docs which are already candidate pairs (saves speed?)
+    public long[] getBandSignatureHashes(int band, short[][] sig){
+        System.out.println("Creating band signatures for band " + band);
         int b = band * this.lshRows;
-        Map<Integer, HashSet<Integer>> bandCandidatePairs = new HashMap<Integer, HashSet<Integer>>();
+        long[] bandHashes = new long[this.nDocs];
         // find the candidate pairs of a band
-        for (int doc = 0; doc < this.nDocs; doc++) {                   // iterate signatures (columns) and hash them
+        for (int doc = 0; doc < this.nDocs; doc++) {
             String docSignature = "";
-
             for (int row = b; row < b + this.lshRows; row++) {  // create signature (concat values)
-                docSignature = docSignature.concat(Integer.toString(sig[row][doc]));
+                docSignature = docSignature.concat(Short.toString(sig[row][doc]));
             }
-
-            int docSignatureHash = MurmurHash.hash32(docSignature, this.murmurSeed);
-
-            // add the candidate to the corresponding set, or create a new entry with the doc on the set
-            if (bandCandidatePairs.containsKey(docSignatureHash)){
-                bandCandidatePairs.get(docSignatureHash).add(doc);
-            } else {
-                HashSet<Integer> s = new HashSet<Integer>();
-                s.add(doc);
-                bandCandidatePairs.put(docSignatureHash, s);
-            }
+            long docSignatureHash = MurmurHash.hash64(docSignature, this.murmurSeed);
+            bandHashes[doc] = docSignatureHash;
         }
-        return bandCandidatePairs;
+        return bandHashes;
     }
 
 
-    public Set<SimilarPair> getSimilarPairsAboveThresholdFromSet(double threshold, Set<Integer> docs, short[][] sig){
+    /*
+    For each document in the bandHashes array, looks for the other documents of higher id with same hash.
+    Complexity: n + n-1 + n-2.. = n(n-1)/2 (slightly less than n squared)
+     */
+    public Set<SimilarPair> getSimilarPairsAboveThresholdFromBand(double threshold, long[] bandHash, short[][] sig){
         Set<SimilarPair>  simPairs = new HashSet<SimilarPair>();
-        for (int doc1 : docs)
-            for (int doc2 : docs)
-                if (doc1 < doc2){ // avoids duplicities
+        for (int doc1 = 0; doc1 < this.nDocs; doc1++) {
+            for (int doc2 = doc1 + 1; doc2 < this.nDocs; doc2++) { // doc2 starts on the following doc
+                if (bandHash[doc1] == bandHash[doc2]) {
                     double sim = computeSignaturesSimilarity(sig, doc1, doc2);
                     if (sim > threshold) simPairs.add(new SimilarPair(doc1, doc2, sim));
                 }
+            }
+        }
         return simPairs;
     }
 
@@ -133,7 +125,7 @@ public class LSHSearch extends Search {
     public double computeSignaturesSimilarity(short[][] sig, int doc1, int doc2){
         int union = 0;
         for (int i = 0; i < this.sigRows; i++){
-            if (sig[i][doc1] == sig[i][doc2]) union++; // rows matching in the
+            if (sig[i][doc1] == sig[i][doc2]) union++; // rows matching in the signature
         }
         return (double) union / this.sigRows;
     }

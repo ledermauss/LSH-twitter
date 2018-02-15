@@ -41,7 +41,7 @@ public class TwitterReader {
 	     			String line = br.readLine();
 				String[] cols = line.split("\t", -1);
 				this.curDoc++;
-				if (cols.length == 3) {
+				if (cols.length >= 3) {  // if the text column is not missing
                     return this.shingler.shingle(cols[2]);
                 } else {
                     return this.shingler.shingle("\n"); // to avoid breaking if last line is blank
