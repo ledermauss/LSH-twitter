@@ -9,6 +9,7 @@ public class LSHSearch extends Search {
     private int lshBands;
     private int sigRows;            // rows/hash functions of the signature matrix
     private int nShingles;          // max number of shingles/signature hashing values
+    private int murmurSeed;         // murmur hash seed for the band buckets
     private Function <Integer, Integer>[] sigHashFunctions;
 
     public LSHSearch(TwitterReader reader, int bands, int rows) {
@@ -16,6 +17,7 @@ public class LSHSearch extends Search {
         this.lshRows = rows;
         this.lshBands = bands;
         this.sigRows = rows * bands;
+        this.murmurSeed = (new Random()).nextInt();
         this.nShingles = reader.shingler.nShingles;
         this.sigHashFunctions = new Function[this.sigRows];
         Random rand = new Random();
@@ -51,30 +53,9 @@ public class LSHSearch extends Search {
 
         int[][] sig = createSignatureMatrix(docs, docToShingle);
 
-        int murmurSeed = (new Random()).nextInt();
-
         // finding the candidates with lsh
-        for (int b = 0; b < this.sigRows; b += this.lshRows) {       // iterate bands
-            Map<Integer, Set<Integer>> bandCandidatePairs = new HashMap<Integer, Set<Integer>>();
-
-            // find the candidate pairs of a band
-            for (int doc = 0; doc < docs; doc++) {                   // iterate signatures (columns) and hash them
-                String docSignature = "";
-
-                for (int row = b; row < b + this.lshRows; row++) {  // create signature (concat values)
-                    // bandSignature += sig[row][doc], concat is faster
-                    docSignature = docSignature.concat(Integer.toString(sig[row][doc]));
-                }
-
-                int docSignatureHash = MurmurHash.hash32(docSignature, murmurSeed);
-
-                // add the candidate to the corresponding set, or create a new entry with the doc on the set
-                if (bandCandidatePairs.containsKey(docSignatureHash)){
-                    bandCandidatePairs.get(docSignatureHash).add(doc);
-                } else {
-                    bandCandidatePairs.put(docSignatureHash, Collections.singleton(doc)); // set with one element
-                }
-            }
+        for (int band = 0; band < this.lshBands; band++) {       // iterate bands
+            Map<Integer, HashSet<Integer>> bandCandidatePairs = getBandCandidatePairs(band, sig, docs);
 
             // extract pairs with similarity above the threshold from the band, store them
             for (Set<Integer> set : bandCandidatePairs.values()) {
@@ -107,7 +88,32 @@ public class LSHSearch extends Search {
         return sig;
     }
 
-    //public Map<Integer, Set<Integer>> getBandCandidatePairs(int )
+
+    public Map<Integer, HashSet<Integer>> getBandCandidatePairs(int band, int[][] sig, int docs){
+        int b = band * this.lshRows;
+        Map<Integer, HashSet<Integer>> bandCandidatePairs = new HashMap<Integer, HashSet<Integer>>();
+        // find the candidate pairs of a band
+        for (int doc = 0; doc < docs; doc++) {                   // iterate signatures (columns) and hash them
+            String docSignature = "";
+
+            for (int row = b; row < b + this.lshRows; row++) {  // create signature (concat values)
+                // bandSignature += sig[row][doc], concat is faster
+                docSignature = docSignature.concat(Integer.toString(sig[row][doc]));
+            }
+
+            int docSignatureHash = MurmurHash.hash32(docSignature, this.murmurSeed);
+
+            // add the candidate to the corresponding set, or create a new entry with the doc on the set
+            if (bandCandidatePairs.containsKey(docSignatureHash)){
+                bandCandidatePairs.get(docSignatureHash).add(doc);
+            } else {
+                HashSet<Integer> s = new HashSet<Integer>();
+                s.add(doc);
+                bandCandidatePairs.put(docSignatureHash, s);
+            }
+        }
+        return bandCandidatePairs;
+    }
 
 
     public Set<SimilarPair> getSimilarPairsAboveThresholdFromSet(double threshold, Set<Integer> docs, int[][] sig){
