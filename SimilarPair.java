@@ -1,3 +1,5 @@
+import java.util.Objects;
+
 /**
  * SimilarPair contains the ids of two objects and their similarity.
  * 
@@ -34,6 +36,29 @@ public class SimilarPair implements Comparable<SimilarPair>{
 			return 1;
 		}
 	}
+
+	/**
+	 * Overriding equals and hashCode to check for duplicates in the set of similar pairs
+	 */
+	@Override
+	public int hashCode(){
+		return Objects.hash(id1, id2);
+	}
+
+	@Override
+	public boolean equals(Object o){
+		if (o == this) return true;
+		if (!(o instanceof SimilarPair)) {
+			return false;
+		}
+		SimilarPair pair = (SimilarPair) o;
+		return (id1 == pair.id1 &&
+				id2 == pair.id2) ||
+				(id1 == pair.id2 &&
+				id2 == pair.id1);
+	}
+
+
 	
 	/**
 	 * Returns the id of object 1.
