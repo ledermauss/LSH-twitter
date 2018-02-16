@@ -62,12 +62,11 @@ public class LSHSearch extends Search {
             System.out.println("Extracting the candidate pairs from the hashes");
             int iter = 0;
             for (HashSet<Integer> cands : bandCandidatePairs.values()) {
-                if (iter % 100000== 0) System.out.println ("Pairs to examine: " + bandCandidatePairs.values().size());
-                if (iter % 100000 == 0) System.out.println ("Examining candidates set number " + iter);
+                if (iter == 0) System.out.println ("Pairs to examine: " + bandCandidatePairs.values().size());
+                if (iter % 10000 == 0) System.out.println ("Examining candidates set number " + iter);
                 if (cands.size() > 1) {
-                    // optimization: do not check pairs already in the set
-                    Set<SimilarPair> setSims = getSimilarPairsAboveThresholdFromSet(threshold, cands, sig);
-                    sims.addAll(setSims);
+                    // the method adds directly to sims. Saves memory
+                    getSimilarPairsAboveThresholdFromSet(threshold, cands, sig, sims);
                 }
                 iter++;
             }
@@ -127,17 +126,17 @@ public class LSHSearch extends Search {
         return bandCandidatePairs;
     }
 
-    public Set<SimilarPair> getSimilarPairsAboveThresholdFromSet(double threshold, Set<Integer> docs, short[][] sig){
+    public void getSimilarPairsAboveThresholdFromSet(double threshold, Set<Integer> docs, short[][] sig,
+                                                                 Set<SimilarPair> sims){
         // it is assumed that the list is already ordered (since docs are were inserted in ascending order)
-        Set<SimilarPair>  simPairs = new HashSet<SimilarPair>();
         for (int doc1: docs) {
             for (int doc2: docs)
-                if (doc1 < doc2 && !simPairs.contains(new SimilarPair(doc1, doc2, 0))) {
+                if (doc1 < doc2 && !sims.contains(new SimilarPair(doc1, doc2, 0))) {
                     double sim = computeSignaturesSimilarity(sig, doc1, doc2);
-                    if (sim > threshold) simPairs.add(new SimilarPair(doc1, doc2, sim));
+                    if (sim > threshold) sims.add(new SimilarPair(doc1, doc2, sim));
                 }
         }
-        return simPairs;
+        return;
     }
 
     public Set<SimilarPair> getSimilarPairsAboveThresholdFromList(double threshold, List<Integer> docs, short[][] sig){

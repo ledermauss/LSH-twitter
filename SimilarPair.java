@@ -53,9 +53,7 @@ public class SimilarPair implements Comparable<SimilarPair>{
 		}
 		SimilarPair pair = (SimilarPair) o;
 		return (id1 == pair.id1 &&
-				id2 == pair.id2) ||
-				(id1 == pair.id2 &&
-				id2 == pair.id1);
+				id2 == pair.id2);
 	}
 
 

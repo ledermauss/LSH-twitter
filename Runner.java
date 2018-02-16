@@ -11,6 +11,7 @@ import java.io.*;
 public class Runner {
 
 	public static void main(String[] args) {
+        long startTime = System.currentTimeMillis();
 
 		String inputPath = "";
 		String outputPath = "";
@@ -51,6 +52,9 @@ public class Runner {
 			searcher = new LSHSearch(reader, 10, 4);
 		}
 		Set<SimilarPair> similarItems = searcher.getSimilarPairsAboveThreshold(threshold);
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        System.out.println("Time: " +  elapsedTime);
 		printPairs(similarItems, outputPath);
 	}
 
