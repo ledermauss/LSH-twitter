@@ -47,12 +47,20 @@ public class LSHSearch extends Search {
     private int hashShingle(int shingle, int h){ return sigHashFunctions[h].apply(shingle); }
 
 
-    @Override
     public Set<SimilarPair> getSimilarPairsAboveThreshold(double threshold){
         Set<SimilarPair> sims = new HashSet<SimilarPair>();
 
         short[][] sig = createSignatureMatrix();
         System.out.println("Signature matrix has been created");
+
+        if (this.lshBands == 1) { //no lsh, calculate just on the minHash
+            for (int doc1 = 0; doc1 < this.nDocs; doc1++)
+                for (int doc2 = doc1; doc2 < this.nDocs; doc2++){
+                    double sim = computeSignaturesSimilarity(sig, doc1, doc2);
+                    sims.add(new SimilarPair(doc1, doc2, sim));
+                }
+                return sims;
+        }
 
         // finding the candidates with lsh
         for (int band = 0; band < this.lshBands; band++) {       // iterate bands

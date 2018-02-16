@@ -22,7 +22,7 @@ public class BruteForceSearch extends Search{
 
         Set<SimilarPair> cands = new HashSet<SimilarPair>();
         for (Integer obj1 : docToShingle.keySet()){
-            if (obj1 % 10000 == 0){
+            if (obj1 % 1000 == 0){
                 System.out.println("at " + obj1);
             }
             for (Integer obj2 : docToShingle.keySet()){

@@ -20,6 +20,8 @@ public class Runner {
 		int shingleLength = -1;
 		int nShingles = -1;
 		float threshold = -1;
+		int rows = 4;
+		int bands = 10;
 
 		int i = 0;
 		while (i < args.length && args[i].startsWith("-")) {
@@ -38,6 +40,10 @@ public class Runner {
 				outputPath = args[i + 1];
 			}else if(arg.equals("-algorithm")){
 				algorithm = args[i + 1];
+			}else if(arg.equals("-rows")){
+				rows = Integer.parseInt(args[i + 1]);
+			}else if(arg.equals("-bands")){
+				bands = Integer.parseInt(args[i + 1]);
             }
 			i += 2;
 		}
@@ -49,7 +55,7 @@ public class Runner {
 			searcher = new BruteForceSearch(reader);
 		} else{
             System.out.println("Performing LSH search");
-			searcher = new LSHSearch(reader, 10, 4);
+			searcher = new LSHSearch(reader, bands, rows);
 		}
 		Set<SimilarPair> similarItems = searcher.getSimilarPairsAboveThreshold(threshold);
         long stopTime = System.currentTimeMillis();
