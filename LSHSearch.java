@@ -50,7 +50,7 @@ public class LSHSearch extends Search {
     public Set<SimilarPair> getSimilarPairsAboveThreshold(double threshold){
         Set<SimilarPair> sims = new HashSet<SimilarPair>();
 
-        short[][] sig = createSignatureMatrix();
+        int[][] sig = createSignatureMatrix();
         System.out.println("Signature matrix has been created");
 
         if (this.lshBands == 1) { //no lsh, calculate just on the minHash
@@ -86,29 +86,46 @@ public class LSHSearch extends Search {
     }
 
 
-    private short[][] createSignatureMatrix(){
+    private int[][] createSignatureMatrix(){
         // 1. initialize sizes
-        short[][] sig = new short[this.sigRows][this.nDocs];
-        for (short[] row: sig)
-            Arrays.fill(row, (short) (this.nShingles + 1));              // fill with infinite = fill with maximum hashing value
+        int[][] sig = new int[this.sigRows][this.nDocs];
+        // idea: speed computation by hashing each shingle only the first time it appears
+        // later, retrieve this hashes instead of recalculating
+        HashMap <Integer, int[]> hashedShingles = new HashMap<Integer,  int[]>();
+        for (int[] row: sig)
+            Arrays.fill(row, this.nShingles + 1);              // fill with infinite = fill with maximum hashing value
 
         // 2. go through each shingle and doc,
         int doc = 0;
         while (super.reader.hasNext()){                                 // iterate docs
             if (doc % 100000 == 0) System.out.println("Current doc is: " + doc);
             for (int shingle: super.reader.next()){                     // iterate shingles per doc
-                for (int h = 0; h < this.sigRows; h++){                 // hash shingle (row) and add to sig matrix
-                    sig[h][doc] = (hashShingle(shingle, h) < sig[h][doc]) ?
-                            (short) hashShingle(shingle, h) : sig[h][doc];
+                storeHashedShingle(shingle, hashedShingles);
+                for (int h = 0; h < this.sigRows; h++){
+                    int shingleHash = hashedShingles.get(shingle)[h];
+                    sig[h][doc] = (shingleHash < sig[h][doc]) ?         // replace shingle hash in matrix if lower
+                             shingleHash : sig[h][doc];
                 }
             }
             doc++;
         }
+        this.sigHashFunctions = null;  // hashing functions not needed anymore, can be emptied (dereferenced)
         return sig;
     }
 
 
-    public void getBandCandidatePairs(int band, short[][] sig, Map<Long,
+    public void storeHashedShingle(int shingle, HashMap<Integer, int[]> hashedShingles) {
+        if (hashedShingles.get(shingle) == null) {  //store only if the shingle has not been hashed yet
+            int[] shingleHashes = new int[this.sigRows];
+            for (int f = 0; f < this.sigRows; f++) {  //f loops the existing hashing functions
+                shingleHashes[f] = hashShingle(shingle, f);
+            }
+            hashedShingles.put(shingle, shingleHashes);
+        }
+    }
+
+
+    public void getBandCandidatePairs(int band, int[][] sig, Map<Long,
             HashSet<Integer>> bandCandidatePairs){
         int b = band * this.lshRows;
         //Map<Long, HashSet<Integer>> bandCandidatePairs = new HashMap<Long, HashSet<Integer>>();
@@ -133,8 +150,8 @@ public class LSHSearch extends Search {
     }
 
 
-    public void getSimilarPairsAboveThresholdFromSet(double threshold, Set<Integer> docs, short[][] sig,
-                                                                 Set<SimilarPair> sims){
+    public void getSimilarPairsAboveThresholdFromSet(double threshold, Set<Integer> docs, int[][] sig,
+                                                     Set<SimilarPair> sims){
         // it is assumed that the list is already ordered (since docs are were inserted in ascending order)
         for (int doc1: docs) {
             for (int doc2: docs)
@@ -146,7 +163,7 @@ public class LSHSearch extends Search {
         return;
     }
 
-    public double computeSignaturesSimilarity(short[][] sig, int doc1, int doc2){
+    public double computeSignaturesSimilarity(int[][] sig, int doc1, int doc2){
         int union = 0;
         for (int i = 0; i < this.sigRows; i++){
             if (sig[i][doc1] == sig[i][doc2]) union++; // rows matching in the signature
