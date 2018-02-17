@@ -22,22 +22,20 @@ public class LSHSearch extends Search {
         this.nDocs = super.reader.maxDocs;  // updated later if it is actually smaller
         this.sigHashFunctions = new Function[this.sigRows];
         Random rand = new Random();
-        int prime = Primes.findLeastPrimeNumber(this.nShingles + 1);
 
         // init the signature hash functions
         for(int i = 0; i < this.sigRows; i++){
             // in each iteration, new parameters a, b and prime
             this.sigHashFunctions[i] =
-                    initHash(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE), prime);
-            prime = Primes.findLeastPrimeNumber(prime + 1);
+                    initHash(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
         }
     }
 
 
-    private Function<Integer, Integer> initHash(int a, int b, int p){
+    private Function<Integer, Integer> initHash(int a, int b){
         // lambda: shingle is the argument (int) the generated function expects
         // this.nShingles: max length of the hashValue (max shingles)
-        return  shingle -> (((a * shingle + b) % p ) % this.nShingles) & 0x7FFFFFFF;
+        return  shingle -> (((a * shingle + b) % 2147482951 ) % this.nShingles) & 0x7FFFFFFF;
     }
 
 
