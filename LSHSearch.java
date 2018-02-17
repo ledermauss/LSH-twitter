@@ -12,6 +12,7 @@ public class LSHSearch extends Search {
     private int nDocs;
     private int murmurSeed;         // murmur hash seed for the band buckets
     private Function <Integer, Integer>[] sigHashFunctions;
+    private int[][] sig;
 
     public LSHSearch(TwitterReader reader, int bands, int rows) {
         super(reader);
@@ -49,36 +50,20 @@ public class LSHSearch extends Search {
 
     public Set<SimilarPair> getSimilarPairsAboveThreshold(double threshold){
         Set<SimilarPair> sims = new HashSet<SimilarPair>();
-        Set<SimilarPair> rejectedPairs = new HashSet<SimilarPair>();
 
-        int[][] sig = createSignatureMatrix();
+        createSignatureMatrix();
         System.out.println("Signature matrix has been created");
 
-        /*
-        if (this.lshBands == 1) { //no lsh, calculate just on the minHash
-            for (int doc1 = 0; doc1 < this.nDocs; doc1++)
-                for (int doc2 = doc1; doc2 < this.nDocs; doc2++){
-                    double sim = computeSignaturesSimilarity(sig, doc1, doc2);
-                    sims.add(new SimilarPair(doc1, doc2, sim));
-                }
-                return sims;
-        }
-        */
 
         // finding the candidates with lsh
         for (int band = 0; band < this.lshBands; band++) {       // iterate bands
             System.out.println("Looking for pair candidates in band " + band);
             int b = band * this.lshRows;
-            Map<Long, HashSet<Integer>> bandCandidatePairs = new HashMap<Long, HashSet<Integer>>();
+            Map<Integer, HashSet<Integer>> bandCandidatePairs = new HashMap<Integer, HashSet<Integer>>();
             // find the candidate pairs of a band
             for (int doc = 0; doc < this.nDocs; doc++) {                   // iterate signatures (columns) and hash them
-                String docSignature = "";
 
-                for (int row = b; row < b + this.lshRows; row++) {  // create signature (concat values)
-                    docSignature = docSignature.concat(Integer.toString(sig[row][doc]));
-                }
-
-                long docSignatureHash = MurmurHash.hash64(docSignature, this.murmurSeed);
+                int docSignatureHash = getDocSignatureHash(b, doc);
 
                 // add the candidate to the corresponding set, or create a new entry with the doc on the set
                 if (bandCandidatePairs.get(docSignatureHash) == null) {
@@ -86,32 +71,21 @@ public class LSHSearch extends Search {
                     s.add(doc);
                     bandCandidatePairs.put(docSignatureHash, s);
                 } else {
-                    for (int prevDoc : bandCandidatePairs.get(docSignatureHash)) {
-                        SimilarPair pair = new SimilarPair(prevDoc, doc, 0);
-                        if (prevDoc < doc && !sims.contains(pair) && !rejectedPairs.contains(pair)) {
-                            double sim = computeSignaturesSimilarity(sig, prevDoc, doc);
-                            if (sim > threshold) {
-                                pair.sim = sim;
-                                sims.add(pair);
-                            } else {
-                                rejectedPairs.add(pair);
-                            }
-                        }
-                    }
+                    getSimPairsFromBucket(threshold, sims, bandCandidatePairs, doc, docSignatureHash);
                     bandCandidatePairs.get(docSignatureHash).add(doc);
                 }
             }
         }
-        System.out.println("Rejected pairs: " + rejectedPairs.size());
         System.out.println("Similar pairs: " + sims.size());
         return sims;
     }
 
 
-    private int[][] createSignatureMatrix(){
+
+    private void createSignatureMatrix(){
         long startTime = System.currentTimeMillis();
         // 1. initialize sizes
-        int[][] sig = new int[this.sigRows][this.nDocs];
+        this.sig = new int[this.sigRows][this.nDocs];
         // idea: speed computation by hashing each shingle only the first time it appears
         // later, retrieve this hashes instead of recalculating
         HashMap <Integer, int[]> hashedShingles = new HashMap<Integer,  int[]>();
@@ -139,11 +113,10 @@ public class LSHSearch extends Search {
 
         this.sigHashFunctions = null;  // hashing functions not needed anymore, can be emptied (dereferenced)
         super.reader = null;            // same for reader
-        return sig;
     }
 
 
-    public void storeHashedShingle(int shingle, HashMap<Integer, int[]> hashedShingles) {
+    private void storeHashedShingle(int shingle, HashMap<Integer, int[]> hashedShingles) {
         if (hashedShingles.get(shingle) == null) {  //store only if the shingle has not been hashed yet
             int[] shingleHashes = new int[this.sigRows];
             for (int f = 0; f < this.sigRows; f++) {  //f loops the existing hashing functions
@@ -154,7 +127,44 @@ public class LSHSearch extends Search {
     }
 
 
-    public double computeSignaturesSimilarity(int[][] sig, int doc1, int doc2){
+    private int getDocSignatureHash(int b, int doc) {
+        byte[] signature = new byte[4 * this.lshRows];          // 4 = integer size in bytes
+
+        for (int row = b; row < b + this.lshRows; row++) {  // create signature (concat values)
+            byte[] rowBytes = intToByteArray(sig[row][doc]);
+            // arraycopy (source, srcStart, dest, destStart, length)
+            System.arraycopy(rowBytes, 0, signature, 4 * row, 4);
+        }
+        int signatureHash = MurmurHash.hash32(signature, 4 * this.lshRows, this.murmurSeed);
+        return signatureHash;
+    }
+
+
+    private byte[] intToByteArray(int value) {
+        return new byte[] {
+                (byte)(value >>> 24),
+                (byte)(value >>> 16),
+                (byte)(value >>> 8),
+                (byte)value};
+    }
+
+
+    private void getSimPairsFromBucket(double threshold, Set<SimilarPair> sims,
+                                       Map<Integer, HashSet<Integer>> buckets, int doc, int docSignatureHash) {
+        for (int prevDoc : buckets.get(docSignatureHash)) {
+            SimilarPair pair = new SimilarPair(prevDoc, doc, 0);
+            if (prevDoc < doc && !sims.contains(pair)) {
+                double sim = computeSignaturesSimilarity(prevDoc, doc);
+                if (sim > threshold) {
+                    pair.sim = sim;
+                    sims.add(pair);
+                }
+            }
+        }
+    }
+
+
+    private double computeSignaturesSimilarity(int doc1, int doc2){
         int union = 0;
         for (int i = 0; i < this.sigRows; i++){
             if (sig[i][doc1] == sig[i][doc2]) union++; // rows matching in the signature
