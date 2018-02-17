@@ -87,6 +87,7 @@ public class LSHSearch extends Search {
 
 
     private int[][] createSignatureMatrix(){
+        long startTime = System.currentTimeMillis();
         // 1. initialize sizes
         int[][] sig = new int[this.sigRows][this.nDocs];
         // idea: speed computation by hashing each shingle only the first time it appears
@@ -109,6 +110,10 @@ public class LSHSearch extends Search {
             }
             doc++;
         }
+        long stopTime = System.currentTimeMillis();
+        long elapsedTime = stopTime - startTime;
+        System.out.println("Seconds for reading the docs and creating signature matrix: " +  elapsedTime/1000);
+
         this.sigHashFunctions = null;  // hashing functions not needed anymore, can be emptied (dereferenced)
         return sig;
     }
@@ -143,6 +148,7 @@ public class LSHSearch extends Search {
             // add the candidate to the corresponding set, or create a new entry with the doc on the set
             if (bandCandidatePairs.get(docSignatureHash) == null) {
                 HashSet<Integer> s = new HashSet<Integer>();
+                s.add(doc);
                 bandCandidatePairs.put(docSignatureHash, s);
             }
             bandCandidatePairs.get(docSignatureHash).add(doc);
