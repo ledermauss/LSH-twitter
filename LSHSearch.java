@@ -106,7 +106,9 @@ public class LSHSearch extends Search {
         while (super.reader.hasNext()){                                 // iterate docs
             if (doc % 100000 == 0) System.out.println("Current doc is: " + doc);
             for (int shingle: super.reader.next()){                     // iterate shingles per doc
-                storeHashedShingle(shingle, hashedShingles);
+                if (!hashedShingles.containsKey(shingle)) {  //store only if the shingle has not been hashed yet
+                    storeHashedShingle(shingle, hashedShingles);
+                }
                 for (int h = 0; h < this.sigRows; h++){
                     int shingleHash = hashedShingles.get(shingle)[h];
                     int matVal = sig[h][doc];
@@ -126,21 +128,20 @@ public class LSHSearch extends Search {
 
 
     private void storeHashedShingle(int shingle, HashMap<Integer, int[]> hashedShingles) {
-        if (hashedShingles.get(shingle) == null) {  //store only if the shingle has not been hashed yet
-            int[] shingleHashes = new int[this.sigRows];
-            for (int f = 0; f < this.sigRows; f++) {  //f loops the existing hashing functions
-                shingleHashes[f] = hashShingle(shingle, f);
-            }
-            hashedShingles.put(shingle, shingleHashes);
+        int[] shingleHashes = new int[this.sigRows];
+        for (int f = 0; f < this.sigRows; f++) {  //f loops the existing hashing functions
+            shingleHashes[f] = hashShingle(shingle, f);
         }
+        hashedShingles.put(shingle, shingleHashes);
     }
 
 
     private int getDocSignatureHash2(int b, int doc) {
-        String signature = "";
+        String signature = "|";
 
         for (int row = b; row < this.lshRows + b; row++) {  // create signature (concat values)
-            signature = signature.concat(Integer.toString(sig[row][doc]));
+            // the | avoids collisions of the type: [1,23,4] - [12,3,4]
+            signature = signature.concat(Integer.toString(sig[row][doc])).concat("|");
         }
         int signatureHash = MurmurHash.hash32(signature, 9999);
         return signatureHash;
@@ -153,7 +154,11 @@ public class LSHSearch extends Search {
         for (int row = 0; row < this.lshRows; row++) {  // create signature (concat values)
             byte[] rowBytes = intToByteArray(sig[row * b][doc]);
             // arraycopy (source, srcStart, dest, destStart, length)
-            System.arraycopy(rowBytes, 0, signature, 4 * row, 4);
+            // System.arraycopy(rowBytes, 0, signature, 4 * row, 4);
+            signature[row] = rowBytes[0];
+            signature[row + 1] = rowBytes[1];
+            signature[row + 2] = rowBytes[2];
+            signature[row + 3] = rowBytes[3];
         }
         int signatureHash = MurmurHash.hash32(signature, 4 * this.lshRows, 1234);
         return signatureHash;
