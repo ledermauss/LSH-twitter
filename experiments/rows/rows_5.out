@@ -1,0 +1,126 @@
+Performing LSH search
+Current doc is: 0
+Seconds for reading the docs and creating signature matrix: 1
+Signature matrix has been created
+Looking for pair candidates in band 0
+Processing candidates of document 0
+Size of similar Pairs: 0
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 14
+Size of buckets: 9979
+Processing candidates of document 20000
+Size of similar Pairs: 38
+Size of buckets: 19935
+Looking for pair candidates in band 1
+Processing candidates of document 0
+Size of similar Pairs: 74
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 85
+Size of buckets: 9898
+Processing candidates of document 20000
+Size of similar Pairs: 108
+Size of buckets: 19665
+Looking for pair candidates in band 2
+Processing candidates of document 0
+Size of similar Pairs: 156
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 156
+Size of buckets: 9995
+Processing candidates of document 20000
+Size of similar Pairs: 164
+Size of buckets: 19964
+Looking for pair candidates in band 3
+Processing candidates of document 0
+Size of similar Pairs: 175
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 175
+Size of buckets: 9986
+Processing candidates of document 20000
+Size of similar Pairs: 181
+Size of buckets: 19936
+Looking for pair candidates in band 4
+Processing candidates of document 0
+Size of similar Pairs: 188
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 190
+Size of buckets: 9989
+Processing candidates of document 20000
+Size of similar Pairs: 192
+Size of buckets: 19971
+Looking for pair candidates in band 5
+Processing candidates of document 0
+Size of similar Pairs: 196
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 202
+Size of buckets: 9986
+Processing candidates of document 20000
+Size of similar Pairs: 208
+Size of buckets: 19960
+Looking for pair candidates in band 6
+Processing candidates of document 0
+Size of similar Pairs: 219
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 219
+Size of buckets: 9998
+Processing candidates of document 20000
+Size of similar Pairs: 222
+Size of buckets: 19983
+Looking for pair candidates in band 7
+Processing candidates of document 0
+Size of similar Pairs: 229
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 232
+Size of buckets: 9966
+Processing candidates of document 20000
+Size of similar Pairs: 241
+Size of buckets: 19879
+Looking for pair candidates in band 8
+Processing candidates of document 0
+Size of similar Pairs: 251
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 257
+Size of buckets: 9950
+Processing candidates of document 20000
+Size of similar Pairs: 275
+Size of buckets: 19820
+Looking for pair candidates in band 9
+Processing candidates of document 0
+Size of similar Pairs: 310
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 311
+Size of buckets: 9991
+Processing candidates of document 20000
+Size of similar Pairs: 323
+Size of buckets: 19953
+Looking for pair candidates in band 10
+Processing candidates of document 0
+Size of similar Pairs: 329
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 335
+Size of buckets: 9962
+Processing candidates of document 20000
+Size of similar Pairs: 363
+Size of buckets: 19854
+Looking for pair candidates in band 11
+Processing candidates of document 0
+Size of similar Pairs: 386
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 388
+Size of buckets: 9987
+Processing candidates of document 20000
+Size of similar Pairs: 390
+Size of buckets: 19966
+Similar pairs: 391
+Time: 2291

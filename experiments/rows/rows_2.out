@@ -1,0 +1,306 @@
+Performing LSH search
+Current doc is: 0
+Seconds for reading the docs and creating signature matrix: 2
+Signature matrix has been created
+Looking for pair candidates in band 0
+Processing candidates of document 0
+Size of similar Pairs: 0
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 38
+Size of buckets: 6000
+Processing candidates of document 20000
+Size of similar Pairs: 186
+Size of buckets: 10614
+Looking for pair candidates in band 1
+Processing candidates of document 0
+Size of similar Pairs: 423
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 540
+Size of buckets: 4984
+Processing candidates of document 20000
+Size of similar Pairs: 791
+Size of buckets: 8696
+Looking for pair candidates in band 2
+Processing candidates of document 0
+Size of similar Pairs: 1263
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 1283
+Size of buckets: 5678
+Processing candidates of document 20000
+Size of similar Pairs: 1368
+Size of buckets: 9906
+Looking for pair candidates in band 3
+Processing candidates of document 0
+Size of similar Pairs: 1489
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 1509
+Size of buckets: 6069
+Processing candidates of document 20000
+Size of similar Pairs: 1582
+Size of buckets: 10603
+Looking for pair candidates in band 4
+Processing candidates of document 0
+Size of similar Pairs: 1648
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 1668
+Size of buckets: 5530
+Processing candidates of document 20000
+Size of similar Pairs: 1752
+Size of buckets: 9503
+Looking for pair candidates in band 5
+Processing candidates of document 0
+Size of similar Pairs: 1871
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 1904
+Size of buckets: 5880
+Processing candidates of document 20000
+Size of similar Pairs: 1976
+Size of buckets: 10107
+Looking for pair candidates in band 6
+Processing candidates of document 0
+Size of similar Pairs: 2105
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2134
+Size of buckets: 5178
+Processing candidates of document 20000
+Size of similar Pairs: 2230
+Size of buckets: 8806
+Looking for pair candidates in band 7
+Processing candidates of document 0
+Size of similar Pairs: 2405
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2410
+Size of buckets: 7292
+Processing candidates of document 20000
+Size of similar Pairs: 2422
+Size of buckets: 12888
+Looking for pair candidates in band 8
+Processing candidates of document 0
+Size of similar Pairs: 2443
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2453
+Size of buckets: 6115
+Processing candidates of document 20000
+Size of similar Pairs: 2474
+Size of buckets: 10651
+Looking for pair candidates in band 9
+Processing candidates of document 0
+Size of similar Pairs: 2530
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2560
+Size of buckets: 5224
+Processing candidates of document 20000
+Size of similar Pairs: 2610
+Size of buckets: 9033
+Looking for pair candidates in band 10
+Processing candidates of document 0
+Size of similar Pairs: 2699
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2701
+Size of buckets: 6360
+Processing candidates of document 20000
+Size of similar Pairs: 2710
+Size of buckets: 11331
+Looking for pair candidates in band 11
+Processing candidates of document 0
+Size of similar Pairs: 2720
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2724
+Size of buckets: 6373
+Processing candidates of document 20000
+Size of similar Pairs: 2730
+Size of buckets: 11176
+Looking for pair candidates in band 12
+Processing candidates of document 0
+Size of similar Pairs: 2748
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2756
+Size of buckets: 5887
+Processing candidates of document 20000
+Size of similar Pairs: 2775
+Size of buckets: 10279
+Looking for pair candidates in band 13
+Processing candidates of document 0
+Size of similar Pairs: 2801
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2807
+Size of buckets: 5645
+Processing candidates of document 20000
+Size of similar Pairs: 2817
+Size of buckets: 9816
+Looking for pair candidates in band 14
+Processing candidates of document 0
+Size of similar Pairs: 2853
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2857
+Size of buckets: 6255
+Processing candidates of document 20000
+Size of similar Pairs: 2870
+Size of buckets: 11119
+Looking for pair candidates in band 15
+Processing candidates of document 0
+Size of similar Pairs: 2898
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2902
+Size of buckets: 5191
+Processing candidates of document 20000
+Size of similar Pairs: 2910
+Size of buckets: 8984
+Looking for pair candidates in band 16
+Processing candidates of document 0
+Size of similar Pairs: 2932
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2934
+Size of buckets: 5827
+Processing candidates of document 20000
+Size of similar Pairs: 2944
+Size of buckets: 10054
+Looking for pair candidates in band 17
+Processing candidates of document 0
+Size of similar Pairs: 2960
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2961
+Size of buckets: 6824
+Processing candidates of document 20000
+Size of similar Pairs: 2970
+Size of buckets: 12146
+Looking for pair candidates in band 18
+Processing candidates of document 0
+Size of similar Pairs: 2989
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 2991
+Size of buckets: 6096
+Processing candidates of document 20000
+Size of similar Pairs: 2999
+Size of buckets: 10919
+Looking for pair candidates in band 19
+Processing candidates of document 0
+Size of similar Pairs: 3013
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 3018
+Size of buckets: 6479
+Processing candidates of document 20000
+Size of similar Pairs: 3030
+Size of buckets: 11346
+Looking for pair candidates in band 20
+Processing candidates of document 0
+Size of similar Pairs: 3048
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 3049
+Size of buckets: 5459
+Processing candidates of document 20000
+Size of similar Pairs: 3052
+Size of buckets: 9381
+Looking for pair candidates in band 21
+Processing candidates of document 0
+Size of similar Pairs: 3063
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 3063
+Size of buckets: 5210
+Processing candidates of document 20000
+Size of similar Pairs: 3073
+Size of buckets: 8986
+Looking for pair candidates in band 22
+Processing candidates of document 0
+Size of similar Pairs: 3080
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 3082
+Size of buckets: 6480
+Processing candidates of document 20000
+Size of similar Pairs: 3086
+Size of buckets: 11246
+Looking for pair candidates in band 23
+Processing candidates of document 0
+Size of similar Pairs: 3091
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 3092
+Size of buckets: 5669
+Processing candidates of document 20000
+Size of similar Pairs: 3096
+Size of buckets: 9998
+Looking for pair candidates in band 24
+Processing candidates of document 0
+Size of similar Pairs: 3105
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 3108
+Size of buckets: 6813
+Processing candidates of document 20000
+Size of similar Pairs: 3113
+Size of buckets: 12062
+Looking for pair candidates in band 25
+Processing candidates of document 0
+Size of similar Pairs: 3116
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 3117
+Size of buckets: 6853
+Processing candidates of document 20000
+Size of similar Pairs: 3119
+Size of buckets: 12013
+Looking for pair candidates in band 26
+Processing candidates of document 0
+Size of similar Pairs: 3123
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 3124
+Size of buckets: 6414
+Processing candidates of document 20000
+Size of similar Pairs: 3125
+Size of buckets: 11323
+Looking for pair candidates in band 27
+Processing candidates of document 0
+Size of similar Pairs: 3125
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 3125
+Size of buckets: 5492
+Processing candidates of document 20000
+Size of similar Pairs: 3129
+Size of buckets: 9540
+Looking for pair candidates in band 28
+Processing candidates of document 0
+Size of similar Pairs: 3134
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 3134
+Size of buckets: 5803
+Processing candidates of document 20000
+Size of similar Pairs: 3137
+Size of buckets: 10084
+Looking for pair candidates in band 29
+Processing candidates of document 0
+Size of similar Pairs: 3142
+Size of buckets: 0
+Processing candidates of document 10000
+Size of similar Pairs: 3142
+Size of buckets: 5687
+Processing candidates of document 20000
+Size of similar Pairs: 3144
+Size of buckets: 9904
+Similar pairs: 3152
+Time: 6193

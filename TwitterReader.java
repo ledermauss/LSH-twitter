@@ -21,6 +21,7 @@ public class TwitterReader {
 	String filePath;
 	BufferedReader br;
 
+
 	public TwitterReader(int maxDocs, Shingler shingler, String filePath){
 		this.shingler = shingler;
 		this.maxDocs = maxDocs;

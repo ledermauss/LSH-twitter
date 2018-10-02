@@ -1,46 +1,45 @@
 import java.util.*;
-import java.util.function.Function;
 
 /**
  *
  */
-public class LSHSearch extends Search {
+public class LSHSearch {
+    private TwitterReader reader;
     private int lshRows;
     private int lshBands;
     private int sigRows;            // rows/hash functions of the signature matrix
     private int nShingles;          // max number of shingles/signature hashing values
     private int nDocs;
-    private Function <Integer, Integer>[] sigHashFunctions;
+    private int p;
+    private int[] a;
+    private int[] b;
     private int[][] sig;
 
     public LSHSearch(TwitterReader reader, int bands, int rows) {
-        super(reader);
+        this.reader = reader;
         this.lshRows = rows;
         this.lshBands = bands;
         this.sigRows = rows * bands;
-        this.nShingles = super.reader.shingler.nShingles;
-        this.nDocs = super.reader.maxDocs;  // updated later if it is actually smaller
-        this.sigHashFunctions = new Function[this.sigRows];
+        this.nShingles = reader.shingler.nShingles;
+        this.nDocs = reader.maxDocs;  // updated later if it is actually smaller
+        this.p = 2147482951;
+        this.a = new int[this.sigRows];
+        this.b = new int[this.sigRows];
         Random rand = new Random();
 
         // init the signature hash functions
         for(int i = 0; i < this.sigRows; i++){
             // in each iteration, new parameters a, b and prime
-            this.sigHashFunctions[i] =
-                    initHash(rand.nextInt(Integer.MAX_VALUE), rand.nextInt(Integer.MAX_VALUE));
+            a[i] = rand.nextInt(Integer.MAX_VALUE);
+            b[i] = rand.nextInt(Integer.MAX_VALUE);
         }
     }
 
 
-    private Function<Integer, Integer> initHash(int a, int b){
-        // lambda: shingle is the argument (int) the generated function expects
-        // this.nShingles: max length of the hashValue (max shingles)
-        return  shingle -> (((a * shingle + b) % 2147482951 ) % this.nShingles) & 0x7FFFFFFF;
-    }
-
-
     // returns the hash of a single, given hashing function index h
-    private int hashShingle(int shingle, int h){ return sigHashFunctions[h].apply(shingle); }
+    private int hashShingle(int shingle, int h){
+        return  (((a[h] * shingle + b[h]) % p ) % this.nShingles) & 0x7FFFFFFF;
+    }
 
 
     public Set<SimilarPair> getSimilarPairsAboveThreshold(double threshold){
@@ -52,20 +51,14 @@ public class LSHSearch extends Search {
 
         // finding the candidates with lsh
         for (int band = 0; band < this.lshBands; band++) {       // iterate bands
-            System.out.println("Looking for pair candidates in band " + band);
             int b = band * this.lshRows;
             Map<Integer, HashSet<Integer>> buckets = new HashMap<Integer, HashSet<Integer>>();
             // find the candidate pairs of a band
             for (int doc = 0; doc < this.nDocs; doc++) {                   // iterate signatures (columns) and hash them
 
-                int docSignatureHash = getDocSignatureHash2(b, doc);
+                int docSignatureHash = getDocSignatureHash(b, doc);
 
                 // add the candidate to the corresponding set, or create a new entry with the doc on the set
-                if (doc % 10000 == 0){
-                    System.out.println("Processing candidates of document " + doc);
-                    System.out.println("Size of similar Pairs: " + sims.size());
-                    System.out.println("Size of buckets: " + buckets.size());
-                }
 
                 if (buckets.containsKey(docSignatureHash)){
                     for (int prevDoc : buckets.get(docSignatureHash)) {
@@ -103,9 +96,8 @@ public class LSHSearch extends Search {
 
         // 2. go through each shingle and doc,
         int doc = 0;
-        while (super.reader.hasNext()){                                 // iterate docs
-            if (doc % 100000 == 0) System.out.println("Current doc is: " + doc);
-            for (int shingle: super.reader.next()){                     // iterate shingles per doc
+        while (reader.hasNext()){                                 // iterate docs
+            for (int shingle: reader.next()){                     // iterate shingles per doc
                 if (!hashedShingles.containsKey(shingle)) {  //store only if the shingle has not been hashed yet
                     storeHashedShingle(shingle, hashedShingles);
                 }
@@ -122,8 +114,7 @@ public class LSHSearch extends Search {
         long elapsedTime = stopTime - startTime;
         System.out.println("Seconds for reading the docs and creating signature matrix: " +  elapsedTime/1000);
 
-        this.sigHashFunctions = null;  // hashing functions not needed anymore, can be emptied (dereferenced)
-        super.reader = null;            // same for reader
+        reader = null;            // same for reader
     }
 
 
@@ -136,7 +127,7 @@ public class LSHSearch extends Search {
     }
 
 
-    private int getDocSignatureHash2(int b, int doc) {
+    private int getDocSignatureHash(int b, int doc) {
         String signature = "|";
 
         for (int row = b; row < this.lshRows + b; row++) {  // create signature (concat values)
@@ -145,32 +136,6 @@ public class LSHSearch extends Search {
         }
         int signatureHash = MurmurHash.hash32(signature, 9999);
         return signatureHash;
-    }
-
-
-    private int getDocSignatureHash(int b, int doc) {
-        byte[] signature = new byte[4 * this.lshRows];          // 4 = integer size in bytes
-
-        for (int row = 0; row < this.lshRows; row++) {  // create signature (concat values)
-            byte[] rowBytes = intToByteArray(sig[row * b][doc]);
-            // arraycopy (source, srcStart, dest, destStart, length)
-            // System.arraycopy(rowBytes, 0, signature, 4 * row, 4);
-            signature[row] = rowBytes[0];
-            signature[row + 1] = rowBytes[1];
-            signature[row + 2] = rowBytes[2];
-            signature[row + 3] = rowBytes[3];
-        }
-        int signatureHash = MurmurHash.hash32(signature, 4 * this.lshRows, 1234);
-        return signatureHash;
-    }
-
-
-    private byte[] intToByteArray(int value) {
-        return new byte[] {
-                (byte)(value >>> 24),
-                (byte)(value >>> 16),
-                (byte)(value >>> 8),
-                (byte)value};
     }
 
 

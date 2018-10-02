@@ -25,3 +25,10 @@ hs_err_pid*
 .idea/
 *.iml
 out/production/
+
+# extra
+*.swp
+run.sh
+experiments/nShingles/
+experiments/shingles-size/
+experiments/brute/

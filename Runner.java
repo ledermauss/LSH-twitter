@@ -15,13 +15,12 @@ public class Runner {
 
 		String inputPath = "";
 		String outputPath = "";
-		String algorithm = "lsh"; // expect "brute" for brute force
 		int maxFiles = -1;
-		int shingleLength = -1;
-		int nShingles = -1;
-		float threshold = -1;
-		int rows = 4;
-		int bands = 10;
+		int shingleLength = 3;
+		int nShingles = 300000;
+		float threshold = 0.9F;
+		int rows = 10;
+		int bands = 4;
 
 		int i = 0;
 		while (i < args.length && args[i].startsWith("-")) {
@@ -38,8 +37,6 @@ public class Runner {
 				threshold = Float.parseFloat(args[i+1]);
 			}else if(arg.equals("-outputPath")){
 				outputPath = args[i + 1];
-			}else if(arg.equals("-algorithm")){
-				algorithm = args[i + 1];
 			}else if(arg.equals("-rows")){
 				rows = Integer.parseInt(args[i + 1]);
 			}else if(arg.equals("-bands")){
@@ -50,14 +47,10 @@ public class Runner {
 
 		Shingler shingler = new Shingler(shingleLength, nShingles);
    		TwitterReader reader = new TwitterReader(maxFiles, shingler, inputPath);
-		Search searcher;
-		if (algorithm.equals("brute")){
-			searcher = new BruteForceSearch(reader);
-		} else{
-            System.out.println("Performing LSH search");
-			searcher = new LSHSearch(reader, bands, rows);
-		}
+        System.out.println("Performing LSH search");
+        LSHSearch searcher = new LSHSearch(reader, bands, rows);
 		Set<SimilarPair> similarItems = searcher.getSimilarPairsAboveThreshold(threshold);
+
         long stopTime = System.currentTimeMillis();
         long elapsedTime = stopTime - startTime;
         System.out.println("Time: " +  elapsedTime);
